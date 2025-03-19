@@ -57,10 +57,10 @@ let maxDownloadCount = 3
     private var downloadURLs: [String: URL] = [:] // Store URLs of each download
     private var urlSession: URLSession!
     var workItems: [String:DispatchWorkItem] = [:]
-    var updateProgress:((_ url:URL?,_ downloadProgress:Double, _ fileSize:String, _ totalSize:String) -> ())?
-    var updateSingleDownloaded:((URL?,Bool,String) -> ())?
-    var updateDownloadStatus:((URL?,DownloadState) -> ())?
-    var updateDownloadfailed:((URL?) -> ())?
+    public var updateProgress:((_ url:URL?,_ downloadProgress:Double, _ fileSize:String, _ totalSize:String) -> ())?
+    public var updateSingleDownloaded:((URL?,Bool,String) -> ())?
+    public var updateDownloadStatus:((URL?,DownloadState) -> ())?
+    public var updateDownloadfailed:((URL?) -> ())?
     
     var needAutoDownload = true
     public var downLoadMode:DownloadMode = .serial
