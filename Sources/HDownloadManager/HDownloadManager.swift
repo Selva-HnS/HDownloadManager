@@ -63,7 +63,7 @@ let maxDownloadCount = 3
     var updateDownloadfailed:((URL?) -> ())?
     
     var needAutoDownload = true
-    var downLoadMode:DownloadMode = .serial
+    public var downLoadMode:DownloadMode = .serial
     
     let serialQueue = DispatchQueue(label: "com.example.urlSession_serialQueue", qos: .background)
     let semaphore = DispatchSemaphore(value: 0)
