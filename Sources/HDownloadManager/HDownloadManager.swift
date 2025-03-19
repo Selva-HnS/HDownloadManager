@@ -46,7 +46,7 @@ let maxDownloadCount = 3
 
 
 @MainActor open class MyDownloadManager: NSObject, URLSessionDelegate,URLSessionDownloadDelegate {
-    static let sharedInstance = MyDownloadManager()
+    static public let sharedInstance = MyDownloadManager()
     private var queueList: [MyDownload] = []
     private var downloadList: [MyDownload] = []
     private var downloadTasks: [String: URLSessionDownloadTask] = [:] // Store download tasks by URL
