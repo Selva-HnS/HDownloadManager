@@ -22,6 +22,12 @@ public struct MyDownload {
     var fileUrl: URL?
     var needUnzip = false
     var downloadstate:DownloadState = .notstarted
+    public init(fileSavePath: String? = nil, fileUrl: URL? = nil, needUnzip: Bool = false, downloadstate: DownloadState) {
+        self.fileSavePath = fileSavePath
+        self.fileUrl = fileUrl
+        self.needUnzip = needUnzip
+        self.downloadstate = downloadstate
+    }
 }
 
 public enum DownloadState {
@@ -62,7 +68,7 @@ let maxDownloadCount = 3
     public var updateDownloadStatus:((URL?,DownloadState) -> ())?
     public var updateDownloadfailed:((URL?) -> ())?
     
-    var needAutoDownload = true
+    var needAutoDownload = false
     public var downLoadMode:DownloadMode = .serial
     
     let serialQueue = DispatchQueue(label: "com.example.urlSession_serialQueue", qos: .background)
@@ -529,7 +535,7 @@ let maxDownloadCount = 3
                             self.resumedByteOffsets[urlString] = offset
                             self.totalByteOffsets[urlString] = totaloffset
                             if self.downloadList.first(where: { $0.fileUrl?.absoluteString == urlString }) == nil {
-                                self.downloadList.append(MyDownload(fileSavePath: path,fileUrl: url,needUnzip: unzipStatus))
+                                self.downloadList.append(MyDownload(fileSavePath: path,fileUrl: url,needUnzip: unzipStatus, downloadstate: .notstarted))
                             }
                             if let resumeData = state["resumeData"] as? Data {
                                 self.resumedData[urlString] = resumeData
@@ -779,7 +785,7 @@ let maxDownloadCount = 3
         }
     }
     
-    func getExistFileSize(atPath path: String) -> (Bool,String) {
+    public func getExistFileSize(atPath path: String) -> (Bool,String) {
         let file = self.checkIfFileOrDirectory(atPath: path)
         switch file {
         case "directory":
