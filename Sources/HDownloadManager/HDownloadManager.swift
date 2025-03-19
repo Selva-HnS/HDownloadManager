@@ -76,7 +76,7 @@ let maxDownloadCount = 3
         loadDefaults()
     }
     
-    func loadDefaults() {
+    public func loadDefaults() {
         let configuration = URLSessionConfiguration.background(withIdentifier: fidentifier)
         self.urlSession = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
         
@@ -84,31 +84,6 @@ let maxDownloadCount = 3
 //        if needAutoDownload {
 //            loadDownloadState()
 //        }
-    }
-    func performTask() {
-        // Create a DispatchWorkItem
-        let workItem = DispatchWorkItem {
-            // Simulate a background task
-            print("Starting background task...")
-            sleep(2)  // Simulate a delay
-            print("Background task complete.")
-            
-            // Perform UI updates on the main thread
-            DispatchQueue.main.async {
-                print("UI updated on the main thread.")
-            }
-        }
-
-        // Dispatch the work item on a background queue
-        DispatchQueue.global(qos: .userInitiated).async(execute: workItem)
-        
-        // Optionally, you can cancel the work item if needed
-        // workItem.cancel()
-        
-        // Wait for the work item to finish if you need to handle its result
-        workItem.notify(queue: DispatchQueue.main) {
-            print("Work item has completed.")
-        }
     }
     
     // Start downloading a file
@@ -295,7 +270,7 @@ let maxDownloadCount = 3
         return (destinationURL.checkMyFileExist(),destinationURL)
     }
     
-    func startSingleDownload(from url: MyDownload) {
+    public func startSingleDownload(from url: MyDownload) {
         let downloadItem = url
         let urlString = url.fileUrl?.absoluteString ?? ""
         if self.queueList.first(where: { $0.fileUrl?.absoluteString == urlString }) == nil {
@@ -314,7 +289,7 @@ let maxDownloadCount = 3
         }
     }
     
-    func startMultipleDownloads(from urls: [MyDownload]) {
+    public func startMultipleDownloads(from urls: [MyDownload]) {
         if !urls.isEmpty {
             for i in 0 ..< urls.count {
                 let downloadItem = urls[i]
@@ -337,7 +312,7 @@ let maxDownloadCount = 3
         }
     }
     
-    func addDownload() {
+    private func addDownload() {
         if !self.queueList.isEmpty {
             if self.downLoadMode == .concurrent {
                 let count = maxDownloadCount - self.downloadList.count
@@ -358,7 +333,7 @@ let maxDownloadCount = 3
     
     
     // Pause a download
-    func pauseDownload(from url: URL) {
+    public func pauseDownload(from url: URL) {
         let urlString = url.absoluteString
         if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
             if self.queueList[urlindex].downloadstate == .downloading {
@@ -420,7 +395,7 @@ let maxDownloadCount = 3
 //
     
     // Resume a paused download
-    func resumeDownload(from url: URL) {
+    public func resumeDownload(from url: URL) {
         let urlString = url.absoluteString
         if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
             self.queueList[urlindex].downloadstate = .resumed
@@ -453,7 +428,7 @@ let maxDownloadCount = 3
     }
     
     // Cancel a download
-    func cancelDownload(from url: URL) {
+    public func cancelDownload(from url: URL) {
         let urlString = url.absoluteString
         if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
             self.queueList[urlindex].downloadstate = .canceled
@@ -478,7 +453,7 @@ let maxDownloadCount = 3
     }
     
     // Cancel all downloads
-    func cancelAllDownloads() {
+    public func cancelAllDownloads() {
         self.downloadList.removeAll()
         self.queueList.removeAll()
         for task in downloadTasks.values {
@@ -495,7 +470,7 @@ let maxDownloadCount = 3
     }
     
     // Save download state to UserDefaults
-    func saveDownloadState() {
+    private func saveDownloadState() {
         var downloadState: [[String: Any]] = []
         
         for (urlString, offset) in resumedByteOffsets {
@@ -663,7 +638,7 @@ let maxDownloadCount = 3
         task.resume()
     }
     
-    @MainActor func unzipMethod(urlString:String,source:URL,url:URL) {
+    @MainActor private func unzipMethod(urlString:String,source:URL,url:URL) {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         var destinationURL = documentsDirectory
         
@@ -803,6 +778,7 @@ let maxDownloadCount = 3
             }
         }
     }
+    
     func getExistFileSize(atPath path: String) -> (Bool,String) {
         let file = self.checkIfFileOrDirectory(atPath: path)
         switch file {
@@ -971,7 +947,7 @@ extension URL{
         }
     }
     
-    func checkFileExist() -> Bool {
+    public func checkFileExist() -> Bool {
         let documentDirUrl = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
         let path = self.path
         let fileURL = documentDirUrl.appendingPathComponent(path)
