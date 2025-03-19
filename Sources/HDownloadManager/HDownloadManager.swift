@@ -785,6 +785,17 @@ let maxDownloadCount = 3
         }
     }
     
+    public func deleteAllDownloads(atPath path: String) -> Bool {
+        guard let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { return false }
+        let sourceP = documentsDirectory.appendingPathComponent(path)
+        if FileManager.default.fileExists(atPath: sourceP.path) {
+            try! FileManager.default.removeItem(at: sourceP)
+            print("Existing file deleted at destination: \(sourceP.path)")
+            return true
+        }
+        return false
+    }
+    
     public func getExistFileSize(atPath path: String) -> (Bool,String) {
         let file = self.checkIfFileOrDirectory(atPath: path)
         switch file {
