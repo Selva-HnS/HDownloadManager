@@ -393,9 +393,7 @@ let maxDownloadCount = 3
     
     public func resumeAllDownloads() {
         for task in queueList {
-            if task.downloadstate == .paused {
-                self.resumeDownload(from: task.fileUrl!)
-            }
+            self.resumeDownload(from: task.fileUrl!)
         }
     }
     
