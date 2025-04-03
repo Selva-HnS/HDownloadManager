@@ -418,21 +418,18 @@ let maxDownloadCount = 3
                 self.queueList.remove(at: urlindex)
                 self.queueList.append(new)
                 print(self.queueList)
+                DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
+                    self.updateDownloadStatus?( url, .paused)
+                })
                 if let nurlindex = self.downloadList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
                     self.downloadList.remove(at: nurlindex)
-                }
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.2, execute: {
-                    self.updateDownloadStatus?( url, .paused)
                     if self.downLoadMode == .concurrent {
                         print("Ending Task - \(urlString)")
-                        self.csemaphore.signal()
-                        self.addDownload()
                     } else {
                         print("Ending Task - \(urlString)")
                         self.semaphore.signal()
-                        self.addDownload()
                     }
-                })
+                }
             }
             guard let task = downloadTasks[urlString] else { return }
             task.suspend()
@@ -451,6 +448,9 @@ let maxDownloadCount = 3
                 }
             })
         }
+        DispatchQueue.main.asyncAfter(deadline: .now()+0.01, execute: {
+            self.addDownload()
+        })
     }
     
     public func resumeAllDownloads() {
@@ -469,11 +469,11 @@ let maxDownloadCount = 3
                 }
                 self.updateDownloadStatus?( url, .resumed)
             }
-            if self.downLoadMode == .concurrent {
-                self.addDownload()
-            } else {
-                self.addDownload()
-            }
+        }
+        if self.downLoadMode == .concurrent {
+            self.addDownload()
+        } else {
+            self.addDownload()
         }
     }
     
