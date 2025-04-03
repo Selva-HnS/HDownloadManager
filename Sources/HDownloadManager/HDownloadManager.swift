@@ -407,7 +407,8 @@ let maxDownloadCount = 3
     }
     
     public func pauseAllDownloads() {
-        for task in queueList {
+        let looque = queueList
+        for task in looque {
             let url = task.fileUrl
             let urlString = url?.absoluteString ?? ""
             if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
@@ -453,7 +454,8 @@ let maxDownloadCount = 3
     }
     
     public func resumeAllDownloads() {
-        for task in queueList {
+        let looque = queueList
+        for task in looque {
             let url = task.fileUrl
             let urlString = url?.absoluteString ?? ""
             if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
