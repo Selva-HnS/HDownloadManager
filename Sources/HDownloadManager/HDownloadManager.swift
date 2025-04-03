@@ -454,7 +454,24 @@ let maxDownloadCount = 3
     
     public func resumeAllDownloads() {
         for task in queueList {
-            self.resumeDownload(from: task.fileUrl!)
+            let url = task.fileUrl
+            let urlString = url?.absoluteString ?? ""
+            if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
+                self.queueList[urlindex].downloadstate = .resumed
+                let new = self.queueList[urlindex]
+                self.queueList.remove(at: urlindex)
+                if let lastindex = self.queueList.lastIndex(where: { $0.downloadstate == .waiting || $0.downloadstate == .resumed || $0.downloadstate == .downloading}) {
+                    self.queueList.insert(new, at: lastindex+1)
+                } else {
+                    self.queueList.insert(new, at: 0)
+                }
+                self.updateDownloadStatus?( url, .resumed)
+            }
+            if self.downLoadMode == .concurrent {
+                self.addDownload()
+            } else {
+                self.addDownload()
+            }
         }
     }
     
