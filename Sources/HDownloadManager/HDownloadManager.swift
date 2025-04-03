@@ -633,10 +633,13 @@ let maxDownloadCount = 3
                     }
                     if let downloadTask = task as? URLSessionDownloadTask {
                         self.updateDownloadfailed?(downloadTask.originalRequest?.url)
+                        if let urlindex = self.downloadList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
+                            self.downloadList.remove(at: urlindex)
+                            self.queueList.remove(at: urlindex)
+                        }
                     }
                 }
             }
-            
         }
     }
 
