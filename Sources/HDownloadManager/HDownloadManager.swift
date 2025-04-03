@@ -145,6 +145,19 @@ let maxDownloadCount = 3
                                                                 self.csemaphore.signal()
                                                                 self.addDownload()
                                                             }
+                                                        } else {
+                                                            let downloadTask = self.urlSession.downloadTask(with:(url.fileUrl!))
+                                                            downloadTask.resume()
+                                                            if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
+                                                                print("Downloading: Started")
+                                                                self.queueList[urlindex].downloadstate = .downloading
+                                                                self.updateDownloadStatus?( url.fileUrl, .downloading)
+                                                            }
+                                                            self.downloadList.append(url)
+                                                            self.downloadTasks[urlString] = downloadTask
+                                                            self.downloadURLs[urlString] = url.fileUrl
+                                                            self.unzipStatus[urlString] = url.needUnzip
+                                                            print("Started downloading: \(url.fileUrl!.lastPathComponent)")
                                                         }
                                                     } else if url.downloadstate == .paused {
                                                         print("Ending Task - \(urlString)")
@@ -228,9 +241,17 @@ let maxDownloadCount = 3
                                                         self.addDownload()
                                                     }
                                                 } else {
-                                                    print("Ending Task - \(urlString)")
-                                                    self.semaphore.signal()
-                                                    self.addDownload()
+                                                    let downloadTask = self.urlSession.downloadTask(with:(url.fileUrl!))
+                                                    downloadTask.resume()
+                                                    if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
+                                                        self.queueList[urlindex].downloadstate = .downloading
+                                                        self.updateDownloadStatus?( url.fileUrl, .downloading)
+                                                    }
+                                                    self.downloadList.append(url)
+                                                    self.downloadTasks[urlString] = downloadTask
+                                                    self.downloadURLs[urlString] = url.fileUrl
+                                                    self.unzipStatus[urlString] = url.needUnzip
+                                                    print("Started downloading: \(url.fileUrl!.lastPathComponent)")
                                                 }
                                             } else if url.downloadstate == .paused {
                                                 print("Ending Task - \(urlString)")
@@ -387,7 +408,47 @@ let maxDownloadCount = 3
     
     public func pauseAllDownloads() {
         for task in queueList {
-            self.pauseDownload(from: task.fileUrl!)
+            let url = task.fileUrl
+            let urlString = url?.absoluteString ?? ""
+            if let urlindex = self.queueList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
+                self.queueList[urlindex].downloadstate = .paused
+                let new = self.queueList[urlindex]
+                print(self.queueList)
+                self.queueList.remove(at: urlindex)
+                self.queueList.append(new)
+                print(self.queueList)
+                if let nurlindex = self.downloadList.firstIndex(where: { $0.fileUrl?.absoluteString == urlString }) {
+                    self.downloadList.remove(at: nurlindex)
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now()+0.2, execute: {
+                    self.updateDownloadStatus?( url, .paused)
+                    if self.downLoadMode == .concurrent {
+                        print("Ending Task - \(urlString)")
+                        self.csemaphore.signal()
+                        self.addDownload()
+                    } else {
+                        print("Ending Task - \(urlString)")
+                        self.semaphore.signal()
+                        self.addDownload()
+                    }
+                })
+            }
+            guard let task = downloadTasks[urlString] else { return }
+            task.suspend()
+            self.downloadTasks.removeValue(forKey: urlString)
+            // Save the current byte offset
+            resumedByteOffsets[urlString] = task.countOfBytesReceived
+            print("Paused downloading: \(url?.lastPathComponent ?? "") at byte offset: \(resumedByteOffsets[urlString] ?? 0)")
+            task.cancel(byProducingResumeData: { (resumeData) in
+                // You have to set download data with resume data
+                if let resumeData = resumeData {
+                    Task { @MainActor in
+                        print("Captured resume data for \(urlString)")
+                        self.resumedData[urlString] = resumeData
+                        self.saveDownloadState()
+                    }
+                }
+            })
         }
     }
     
