@@ -385,6 +385,20 @@ let maxDownloadCount = 3
         
     }
     
+    public func pauseAllDownloads() {
+        for task in downloadList {
+            self.pauseDownload(from: task.fileUrl!)
+        }
+    }
+    
+    public func resumeAllDownloads() {
+        for task in queueList {
+            if task.downloadstate == .paused {
+                self.resumeDownload(from: task.fileUrl!)
+            }
+        }
+    }
+    
 //    // Cancel all downloads
 //    func pauseAllDownloads() {
 //        for task in downloadTasks.values {
