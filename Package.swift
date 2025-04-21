@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         // Add your SPM dependency here
-        .package(url: "https://github.com/ZipArchive/ZipArchive.git", from: "2.4.3")
+        .package(url: "https://github.com/ZipArchive/ZipArchive.git", exact: "2.4.3")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
