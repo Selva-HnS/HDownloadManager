@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "HDownloadManager",
     platforms: [
-        .iOS(.v16), // Adjust platform as needed
+        .iOS(.v15), // Adjust platform as needed
         .macOS(.v11)
     ],
     products: [
@@ -17,7 +17,7 @@ let package = Package(
     ],
     dependencies: [
         // Add your SPM dependency here
-        .package(url: "https://github.com/ZipArchive/ZipArchive.git", from: "2.6.0")
+        .package(url: "https://github.com/ZipArchive/ZipArchive.git", from: "2.4.3")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
